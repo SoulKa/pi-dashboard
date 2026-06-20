@@ -3,12 +3,19 @@ import type { Ref } from "vue";
 import { fetchWeatherApi } from "openmeteo";
 import config from "@/config";
 
+export interface HourlySlot {
+  hour: number;
+  temperature: number;
+  weatherCode: number;
+}
+
 export interface TomorrowForecast {
   high: number;
   low: number;
   weatherCode: number;
   precipitationMm: number;
   precipitationProbability: number;
+  slots: HourlySlot[];
 }
 
 export interface WeatherData {
@@ -56,6 +63,7 @@ export function useWeather(): {
             "precipitation_sum",
             "precipitation_probability_max",
           ],
+          hourly: ["temperature_2m", "weather_code"],
           timezone: "auto",
         },
       );
@@ -64,6 +72,32 @@ export function useWeather(): {
       const current = location.current()!;
       const daily = location.daily()!;
       const d = (i: number) => daily.variables(i)!.valuesArray()![1]!;
+
+      const SLOT_HOURS = [8, 13, 19];
+      const hourly = location.hourly()!;
+      const hourlyStart = Number(hourly.time());
+      const hourlyTemps = hourly.variables(0)!.valuesArray()!;
+      const hourlyCodes = hourly.variables(1)!.valuesArray()!;
+      const hourlyInterval = (Number(hourly.timeEnd()) - hourlyStart) / hourlyTemps.length;
+      const nowLocal = new Date((Math.floor(Date.now() / 1000) + utcOffsetSeconds) * 1000);
+      const tomorrowLocal = new Date(nowLocal);
+      tomorrowLocal.setUTCDate(tomorrowLocal.getUTCDate() + 1);
+      const ty = tomorrowLocal.getUTCFullYear();
+      const tm = tomorrowLocal.getUTCMonth();
+      const td = tomorrowLocal.getUTCDate();
+      const slots: HourlySlot[] = [];
+      for (let i = 0; i < hourlyTemps.length; i++) {
+        const hd = new Date((hourlyStart + i * hourlyInterval + utcOffsetSeconds) * 1000);
+        if (hd.getUTCFullYear() === ty && hd.getUTCMonth() === tm &&
+            hd.getUTCDate() === td && SLOT_HOURS.includes(hd.getUTCHours())) {
+          slots.push({
+            hour: hd.getUTCHours(),
+            temperature: Math.round(hourlyTemps[i]!),
+            weatherCode: Math.round(hourlyCodes[i]!),
+          });
+        }
+      }
+
       weather.value = {
         time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
         temperature: current.variables(0)!.value(),
@@ -77,6 +111,7 @@ export function useWeather(): {
           low: Math.round(d(2)),
           precipitationMm: Math.round(d(3) * 10) / 10,
           precipitationProbability: Math.round(d(4)),
+          slots,
         },
       };
     } catch (e) {

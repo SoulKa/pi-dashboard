@@ -34,6 +34,16 @@ const DAILY_VALUES: number[][] = [
   [5, 80],      // precipitation_probability_max:  today=5,    tomorrow=80
 ];
 
+// Hourly data anchored at 2024-01-16T00:00:00Z (24 entries, 1-hour interval).
+// Slots at index 8 (08:00), 13 (13:00), 19 (19:00) carry test values.
+// With real Date.now() (~2026) these produce no slots; set system time to
+// 2024-01-15T20:00:00Z in the slots test to make "tomorrow" = 2024-01-16.
+const HOURLY_START_S = 1705363200; // 2024-01-16T00:00:00Z
+const HOURLY_TEMPS = new Float32Array(24);
+HOURLY_TEMPS[8] = 22; HOURLY_TEMPS[13] = 28; HOURLY_TEMPS[19] = 19;
+const HOURLY_CODES = new Float32Array(24);
+HOURLY_CODES[8] = 3; HOURLY_CODES[13] = 80; HOURLY_CODES[19] = 61;
+
 const MOCK_RESPONSE = [
   {
     utcOffsetSeconds: () => 0,
@@ -43,6 +53,11 @@ const MOCK_RESPONSE = [
     }),
     daily: () => ({
       variables: (i: number) => ({ valuesArray: () => DAILY_VALUES[i] }),
+    }),
+    hourly: () => ({
+      time: () => BigInt(HOURLY_START_S),
+      timeEnd: () => BigInt(HOURLY_START_S + 24 * 3600),
+      variables: (i: number) => ({ valuesArray: () => i === 0 ? HOURLY_TEMPS : HOURLY_CODES }),
     }),
   },
 ];
@@ -135,6 +150,23 @@ describe("useWeather", () => {
     await vi.advanceTimersByTimeAsync(30 * 60 * 1000);
 
     expect(vi.mocked(fetchWeatherApi)).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+
+  it("populates tomorrow.slots with 3 hourly entries", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-15T20:00:00Z"));
+
+    const [result, wrapper] = withSetup(() => useWeather());
+    await flushPromises();
+
+    const slots = result.weather.value!.tomorrow.slots;
+    expect(slots).toHaveLength(3);
+    expect(slots[0]).toEqual({ hour: 8, temperature: 22, weatherCode: 3 });
+    expect(slots[1]).toEqual({ hour: 13, temperature: 28, weatherCode: 80 });
+    expect(slots[2]).toEqual({ hour: 19, temperature: 19, weatherCode: 61 });
+
+    wrapper.unmount();
     vi.useRealTimers();
   });
 });

@@ -40,11 +40,18 @@ const precipitation = computed(() =>
 
 const tomorrow = computed(() => props.weather?.tomorrow ?? null);
 
-const tomorrowCondition = computed(() =>
-  tomorrow.value !== null
-    ? getWeatherCondition(tomorrow.value.weatherCode)
-    : null,
-);
+const tomorrowPrecipClass = computed(() => {
+  const p = tomorrow.value?.precipitationProbability ?? 0;
+  return {
+    "text-red-400": p > 50,
+    "text-amber-400": p > 20 && p <= 50,
+    "text-neutral-300": p <= 20,
+  };
+});
+
+function formatHour(h: number): string {
+  return String(h).padStart(2, "0") + ":00";
+}
 </script>
 
 <template>
@@ -63,34 +70,25 @@ const tomorrowCondition = computed(() =>
     </div>
 
     <template v-else-if="isEvening && tomorrow !== null">
-      <div class="flex items-end gap-5">
-        <div class="flex flex-col">
-          <span class="text-[96px] font-bold leading-none tracking-tight">
-            {{ tomorrow.high }}°
+      <div class="grid grid-cols-3 gap-4">
+        <div
+          v-for="slot in tomorrow.slots"
+          :key="slot.hour"
+          class="flex flex-col items-center gap-3"
+        >
+          <span class="text-xl text-neutral-400 font-mono">{{ formatHour(slot.hour) }}</span>
+          <span class="text-6xl leading-none">{{ getWeatherCondition(slot.weatherCode).icon }}</span>
+          <span class="text-5xl font-bold leading-none">{{ slot.temperature }}°</span>
+          <span class="text-xl text-neutral-300 text-center leading-tight">
+            {{ getWeatherCondition(slot.weatherCode).label }}
           </span>
-          <span class="text-3xl text-neutral-400 leading-none mt-2">
-            {{ tomorrow.low }}° Tief
-          </span>
-        </div>
-        <div class="flex flex-col pb-3 gap-1">
-          <span class="text-4xl leading-none">{{ tomorrowCondition?.icon ?? "🌡️" }}</span>
-          <span class="text-2xl text-neutral-300 leading-none">{{ tomorrowCondition?.label ?? "–" }}</span>
         </div>
       </div>
 
-      <div class="flex gap-8 text-2xl">
-        <span
-          class="font-semibold"
-          :class="{
-            'text-red-400': tomorrow.precipitationProbability > 50,
-            'text-amber-400': tomorrow.precipitationProbability > 20 && tomorrow.precipitationProbability <= 50,
-            'text-neutral-300': tomorrow.precipitationProbability <= 20,
-          }"
-        >
-          🌧 {{ tomorrow.precipitationProbability }}%
-        </span>
-        <span class="text-neutral-300">
-          {{ tomorrow.precipitationMm }} mm
+      <div class="flex justify-between items-center text-2xl">
+        <span class="text-neutral-300">↑ {{ tomorrow.high }}°&nbsp;&nbsp;↓ {{ tomorrow.low }}°</span>
+        <span class="font-semibold" :class="tomorrowPrecipClass">
+          🌧 {{ tomorrow.precipitationProbability }}%&nbsp;&nbsp;{{ tomorrow.precipitationMm }} mm
         </span>
       </div>
     </template>
