@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev", "--", "--host"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal"
     }
