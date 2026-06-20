@@ -5,8 +5,13 @@ interface LocationConfig {
   longitude: number;
 }
 
+interface StationConfig {
+  id: number;
+}
+
 interface DashboardConfig {
   location: LocationConfig;
+  station: StationConfig;
 }
 
 export default config as DashboardConfig;
