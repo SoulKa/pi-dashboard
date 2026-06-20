@@ -7,6 +7,7 @@ export interface HourlySlot {
   hour: number;
   temperature: number;
   weatherCode: number;
+  precipitationProbability: number;
 }
 
 export interface TomorrowForecast {
@@ -63,7 +64,7 @@ export function useWeather(): {
             "precipitation_sum",
             "precipitation_probability_max",
           ],
-          hourly: ["temperature_2m", "weather_code"],
+          hourly: ["temperature_2m", "weather_code", "precipitation_probability"],
           timezone: "auto",
         },
       );
@@ -78,6 +79,7 @@ export function useWeather(): {
       const hourlyStart = Number(hourly.time());
       const hourlyTemps = hourly.variables(0)!.valuesArray()!;
       const hourlyCodes = hourly.variables(1)!.valuesArray()!;
+      const hourlyPrecip = hourly.variables(2)!.valuesArray()!;
       const hourlyInterval = (Number(hourly.timeEnd()) - hourlyStart) / hourlyTemps.length;
       const nowLocal = new Date((Math.floor(Date.now() / 1000) + utcOffsetSeconds) * 1000);
       const tomorrowLocal = new Date(nowLocal);
@@ -94,6 +96,7 @@ export function useWeather(): {
             hour: hd.getUTCHours(),
             temperature: Math.round(hourlyTemps[i]!),
             weatherCode: Math.round(hourlyCodes[i]!),
+            precipitationProbability: Math.round(hourlyPrecip[i]!),
           });
         }
       }

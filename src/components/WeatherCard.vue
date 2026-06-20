@@ -82,6 +82,15 @@ function formatHour(h: number): string {
           <span class="text-xl text-neutral-300 text-center leading-tight">
             {{ getWeatherCondition(slot.weatherCode).label }}
           </span>
+          <span
+            v-if="slot.precipitationProbability > 0"
+            class="text-lg font-medium"
+            :class="{
+              'text-red-400':     slot.precipitationProbability > 50,
+              'text-amber-400':   slot.precipitationProbability > 20 && slot.precipitationProbability <= 50,
+              'text-neutral-400': slot.precipitationProbability <= 20,
+            }"
+          >🌧 {{ slot.precipitationProbability }}%</span>
         </div>
       </div>
 

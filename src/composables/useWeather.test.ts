@@ -57,7 +57,12 @@ const MOCK_RESPONSE = [
     hourly: () => ({
       time: () => BigInt(HOURLY_START_S),
       timeEnd: () => BigInt(HOURLY_START_S + 24 * 3600),
-      variables: (i: number) => ({ valuesArray: () => i === 0 ? HOURLY_TEMPS : HOURLY_CODES }),
+      variables: (i: number) => ({
+        valuesArray: () =>
+          i === 0 ? HOURLY_TEMPS
+          : i === 1 ? HOURLY_CODES
+          : (() => { const a = new Float32Array(24); a[8] = 10; a[13] = 5; a[19] = 60; return a; })(),
+      }),
     }),
   },
 ];
@@ -162,9 +167,9 @@ describe("useWeather", () => {
 
     const slots = result.weather.value!.tomorrow.slots;
     expect(slots).toHaveLength(3);
-    expect(slots[0]).toEqual({ hour: 8, temperature: 22, weatherCode: 3 });
-    expect(slots[1]).toEqual({ hour: 13, temperature: 28, weatherCode: 80 });
-    expect(slots[2]).toEqual({ hour: 19, temperature: 19, weatherCode: 61 });
+    expect(slots[0]).toEqual({ hour: 8,  temperature: 22, weatherCode: 3,  precipitationProbability: 10 });
+    expect(slots[1]).toEqual({ hour: 13, temperature: 28, weatherCode: 80, precipitationProbability: 5  });
+    expect(slots[2]).toEqual({ hour: 19, temperature: 19, weatherCode: 61, precipitationProbability: 60 });
 
     wrapper.unmount();
     vi.useRealTimers();
