@@ -55,7 +55,7 @@ function formatHour(h: number): string {
 </script>
 
 <template>
-  <div class="flex flex-col p-10 justify-between min-h-0">
+  <div class="flex flex-col p-10 gap-y-10">
     <div class="flex items-start justify-between">
       <span class="text-lg text-neutral-500 font-medium tracking-widest uppercase">
         {{ isEvening ? "Morgen" : "Aktuell" }}
@@ -65,7 +65,7 @@ function formatHour(h: number): string {
       </span>
     </div>
 
-    <div v-if="error" class="flex-1 flex items-center justify-center text-red-400 text-xl">
+    <div v-if="error" class="py-10 flex items-center justify-center text-red-400 text-xl">
       Wetterdaten nicht verfügbar
     </div>
 

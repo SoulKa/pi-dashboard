@@ -8,7 +8,7 @@ const props = defineProps<{
   error: Error | null;
 }>();
 
-const rows = computed(() => props.departures.slice(0, 3));
+const rows = computed(() => props.departures.slice(0, 6));
 
 function countdownLabel(countdown: number): string {
   return countdown <= 0 ? "jetzt" : `${countdown}'`;
@@ -17,12 +17,17 @@ function countdownLabel(countdown: number): string {
 
 <template>
   <div class="flex flex-col min-h-0 border-t border-neutral-800">
-    <div class="flex items-center justify-between px-10 py-5 border-b border-neutral-800 shrink-0">
+    <div
+      class="flex items-center justify-between px-10 py-5 border-b border-neutral-800 shrink-0"
+    >
       <span class="text-2xl font-semibold text-neutral-300">Abfahrten</span>
       <span v-if="loading" class="text-lg text-neutral-500">Lädt…</span>
     </div>
 
-    <div v-if="error" class="flex-1 flex items-center justify-center text-red-400 text-xl">
+    <div
+      v-if="error"
+      class="flex-1 flex items-center justify-center text-red-400 text-xl"
+    >
       Abfahrten nicht verfügbar
     </div>
 
@@ -30,7 +35,7 @@ function countdownLabel(countdown: number): string {
       <div
         v-for="(dep, i) in rows"
         :key="i"
-        class="flex items-center gap-5 px-10 py-4 border-b border-neutral-800/50"
+        class="flex-1 flex items-center gap-5 px-10 border-b border-neutral-800/50"
         :class="{ 'bg-neutral-900/40': i % 2 === 1 }"
       >
         <span

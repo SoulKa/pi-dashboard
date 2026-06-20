@@ -28,7 +28,7 @@ onUnmounted(() => {
 <template>
   <div
     class="w-screen h-screen overflow-hidden grid bg-neutral-950 text-white"
-    style="grid-template-rows: 3fr 1fr"
+    style="grid-template-rows: auto 1fr"
   >
     <WeatherCard
       :weather="weather"
