@@ -30,12 +30,16 @@ function mockFetch(body: unknown, ok = true): void {
   } as Response);
 }
 
-const MOCK_DEPARTURE = {
-  dateTime: { date: "01.01.2026", time: "10:00" },
-  realDateTime: { date: "01.01.2026", time: "10:03" },
-  countdown: "3",
-  servingLine: { number: "S1", direction: "Plochingen" },
-  platform: "3",
+const NOW = new Date("2026-01-01T10:00:00Z");
+
+const MOCK_EVENT = {
+  departureTimePlanned: "2026-01-01T10:00:00Z",
+  departureTimeEstimated: "2026-01-01T10:03:00Z",
+  transportation: {
+    number: "S1",
+    destination: { name: "Plochingen" },
+  },
+  location: { properties: { platformName: "3" } },
 };
 
 describe("useTrains", () => {
@@ -49,7 +53,7 @@ describe("useTrains", () => {
   });
 
   it("starts with empty departures and no error", () => {
-    mockFetch({ departureList: [] });
+    mockFetch({ stopEvents: [] });
     const [result, wrapper] = withSetup(() => useTrains());
     expect(result.departures.value).toEqual([]);
     expect(result.error.value).toBeNull();
@@ -57,7 +61,7 @@ describe("useTrains", () => {
   });
 
   it("fetches the correct URL with station ID and required params", async () => {
-    mockFetch({ departureList: [] });
+    mockFetch({ stopEvents: [] });
     const [, wrapper] = withSetup(() => useTrains());
     await flushPromises();
 
@@ -69,8 +73,11 @@ describe("useTrains", () => {
     wrapper.unmount();
   });
 
-  it("maps departures with correctly parsed dates and delay", async () => {
-    mockFetch({ departureList: [MOCK_DEPARTURE] });
+  it("maps stopEvents to departures with correct fields, delay, and countdown", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    mockFetch({ stopEvents: [MOCK_EVENT] });
+
     const [result, wrapper] = withSetup(() => useTrains());
     await flushPromises();
 
@@ -78,28 +85,35 @@ describe("useTrains", () => {
     const d = result.departures.value[0];
     expect(d.line).toBe("S1");
     expect(d.direction).toBe("Plochingen");
-    expect(d.scheduledTime).toEqual(new Date(2026, 0, 1, 10, 0));
-    expect(d.realtimeTime).toEqual(new Date(2026, 0, 1, 10, 3));
+    expect(d.scheduledTime).toEqual(new Date("2026-01-01T10:00:00Z"));
+    expect(d.realtimeTime).toEqual(new Date("2026-01-01T10:03:00Z"));
     expect(d.delayMinutes).toBe(3);
     expect(d.platform).toBe("3");
     expect(d.countdown).toBe(3);
+
     wrapper.unmount();
+    vi.useRealTimers();
   });
 
-  it("sets realtimeTime to null and delayMinutes to 0 when realDateTime is absent", async () => {
-    const departure = { ...MOCK_DEPARTURE, realDateTime: undefined };
-    mockFetch({ departureList: [departure] });
+  it("sets realtimeTime to null and delayMinutes to 0 when departureTimeEstimated is absent", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    const event = { ...MOCK_EVENT, departureTimeEstimated: undefined };
+    mockFetch({ stopEvents: [event] });
+
     const [result, wrapper] = withSetup(() => useTrains());
     await flushPromises();
 
     const d = result.departures.value[0];
     expect(d.realtimeTime).toBeNull();
     expect(d.delayMinutes).toBe(0);
+
     wrapper.unmount();
+    vi.useRealTimers();
   });
 
-  it("returns empty array when departureList is empty", async () => {
-    mockFetch({ departureList: [] });
+  it("returns empty array when stopEvents is empty", async () => {
+    mockFetch({ stopEvents: [] });
     const [result, wrapper] = withSetup(() => useTrains());
     await flushPromises();
 
@@ -107,7 +121,7 @@ describe("useTrains", () => {
     wrapper.unmount();
   });
 
-  it("returns empty array when departureList key is missing", async () => {
+  it("returns empty array when stopEvents key is missing", async () => {
     mockFetch({});
     const [result, wrapper] = withSetup(() => useTrains());
     await flushPromises();
@@ -137,7 +151,7 @@ describe("useTrains", () => {
 
   it("re-fetches after 60 seconds", async () => {
     vi.useFakeTimers();
-    mockFetch({ departureList: [] });
+    mockFetch({ stopEvents: [] });
     const [, wrapper] = withSetup(() => useTrains());
     await flushPromises();
     expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
@@ -151,7 +165,7 @@ describe("useTrains", () => {
 
   it("stops polling after unmount", async () => {
     vi.useFakeTimers();
-    mockFetch({ departureList: [] });
+    mockFetch({ stopEvents: [] });
     const [, wrapper] = withSetup(() => useTrains());
     await flushPromises();
 

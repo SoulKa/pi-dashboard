@@ -12,30 +12,23 @@ export interface Departure {
   countdown: number;
 }
 
-interface VvsDateTime {
-  date: string;
-  time: string;
+interface VvsTransportation {
+  number: string;
+  destination: { name: string };
 }
 
-interface VvsDeparture {
-  dateTime: VvsDateTime;
-  realDateTime?: VvsDateTime;
-  countdown: string;
-  servingLine: { number: string; direction: string };
-  platform?: string;
+interface VvsStopEvent {
+  departureTimePlanned: string;
+  departureTimeEstimated?: string;
+  transportation: VvsTransportation;
+  location: { properties?: { platformName?: string } };
 }
 
 interface VvsResponse {
-  departureList?: VvsDeparture[];
+  stopEvents?: VvsStopEvent[];
 }
 
 const POLL_INTERVAL_MS = 60 * 1000;
-
-function parseVvsDate(date: string, time: string): Date {
-  const [d, m, y] = date.split(".");
-  const [h, min] = time.split(":");
-  return new Date(+y, +m - 1, +d, +h, +min);
-}
 
 export function useTrains(): {
   departures: Ref<Departure[]>;
@@ -63,22 +56,25 @@ export function useTrains(): {
       const response = await fetch(`/api/vvs/XML_DM_REQUEST?${params}`);
       if (!response.ok) throw new Error(`VVS API error: ${response.status}`);
       const data = (await response.json()) as VvsResponse;
-      departures.value = (data.departureList ?? []).map((d) => {
-        const scheduled = parseVvsDate(d.dateTime.date, d.dateTime.time);
-        const realtime = d.realDateTime
-          ? parseVvsDate(d.realDateTime.date, d.realDateTime.time)
+      departures.value = (data.stopEvents ?? []).map((e) => {
+        const scheduled = new Date(e.departureTimePlanned);
+        const realtime = e.departureTimeEstimated
+          ? new Date(e.departureTimeEstimated)
           : null;
         const delayMinutes = realtime
-          ? Math.round((realtime.getTime() - scheduled.getTime()) / 60000)
+          ? Math.round((realtime.getTime() - scheduled.getTime()) / 60_000)
           : 0;
+        const countdown = Math.round(
+          ((realtime ?? scheduled).getTime() - Date.now()) / 60_000,
+        );
         return {
-          line: d.servingLine.number,
-          direction: d.servingLine.direction,
+          line: e.transportation.number,
+          direction: e.transportation.destination.name,
           scheduledTime: scheduled,
           realtimeTime: realtime,
           delayMinutes,
-          platform: d.platform ?? null,
-          countdown: parseInt(d.countdown, 10),
+          platform: e.location.properties?.platformName ?? null,
+          countdown,
         };
       });
     } catch (e) {
