@@ -1,0 +1,164 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { defineComponent } from "vue";
+import { flushPromises, mount } from "@vue/test-utils";
+import { useTrains } from "./useTrains";
+
+vi.mock("@/config", () => ({
+  default: { location: { latitude: 1.0, longitude: 2.0 }, station: { id: 123 } },
+}));
+
+type MountReturn = ReturnType<typeof mount>;
+
+function withSetup<T>(composable: () => T): [T, MountReturn] {
+  let result!: T;
+  const wrapper = mount(
+    defineComponent({
+      setup() {
+        result = composable();
+        return () => null;
+      },
+    }),
+  );
+  return [result, wrapper];
+}
+
+function mockFetch(body: unknown, ok = true): void {
+  vi.mocked(fetch).mockResolvedValue({
+    ok,
+    status: ok ? 200 : 500,
+    json: async () => body,
+  } as Response);
+}
+
+const MOCK_DEPARTURE = {
+  dateTime: { date: "01.01.2026", time: "10:00" },
+  realDateTime: { date: "01.01.2026", time: "10:03" },
+  countdown: "3",
+  servingLine: { number: "S1", direction: "Plochingen" },
+  platform: "3",
+};
+
+describe("useTrains", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+  });
+
+  it("starts with empty departures and no error", () => {
+    mockFetch({ departureList: [] });
+    const [result, wrapper] = withSetup(() => useTrains());
+    expect(result.departures.value).toEqual([]);
+    expect(result.error.value).toBeNull();
+    wrapper.unmount();
+  });
+
+  it("fetches the correct URL with station ID and required params", async () => {
+    mockFetch({ departureList: [] });
+    const [, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    const url = vi.mocked(fetch).mock.calls[0][0] as string;
+    expect(url).toContain("/api/vvs/XML_DM_REQUEST");
+    expect(url).toContain("outputFormat=rapidJSON");
+    expect(url).toContain("name_dm=123");
+    expect(url).toContain("useRealtime=1");
+    wrapper.unmount();
+  });
+
+  it("maps departures with correctly parsed dates and delay", async () => {
+    mockFetch({ departureList: [MOCK_DEPARTURE] });
+    const [result, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    expect(result.departures.value).toHaveLength(1);
+    const d = result.departures.value[0];
+    expect(d.line).toBe("S1");
+    expect(d.direction).toBe("Plochingen");
+    expect(d.scheduledTime).toEqual(new Date(2026, 0, 1, 10, 0));
+    expect(d.realtimeTime).toEqual(new Date(2026, 0, 1, 10, 3));
+    expect(d.delayMinutes).toBe(3);
+    expect(d.platform).toBe("3");
+    expect(d.countdown).toBe(3);
+    wrapper.unmount();
+  });
+
+  it("sets realtimeTime to null and delayMinutes to 0 when realDateTime is absent", async () => {
+    const departure = { ...MOCK_DEPARTURE, realDateTime: undefined };
+    mockFetch({ departureList: [departure] });
+    const [result, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    const d = result.departures.value[0];
+    expect(d.realtimeTime).toBeNull();
+    expect(d.delayMinutes).toBe(0);
+    wrapper.unmount();
+  });
+
+  it("returns empty array when departureList is empty", async () => {
+    mockFetch({ departureList: [] });
+    const [result, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    expect(result.departures.value).toEqual([]);
+    wrapper.unmount();
+  });
+
+  it("returns empty array when departureList key is missing", async () => {
+    mockFetch({});
+    const [result, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    expect(result.departures.value).toEqual([]);
+    wrapper.unmount();
+  });
+
+  it("sets error on non-OK HTTP response", async () => {
+    mockFetch({}, false);
+    const [result, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    expect(result.error.value).toBeInstanceOf(Error);
+    expect(result.error.value!.message).toContain("500");
+    wrapper.unmount();
+  });
+
+  it("sets error on network failure", async () => {
+    vi.mocked(fetch).mockRejectedValue(new Error("network error"));
+    const [result, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    expect(result.error.value).toBeInstanceOf(Error);
+    wrapper.unmount();
+  });
+
+  it("re-fetches after 60 seconds", async () => {
+    vi.useFakeTimers();
+    mockFetch({ departureList: [] });
+    const [, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(60 * 1000);
+
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(2);
+    wrapper.unmount();
+    vi.useRealTimers();
+  });
+
+  it("stops polling after unmount", async () => {
+    vi.useFakeTimers();
+    mockFetch({ departureList: [] });
+    const [, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    wrapper.unmount();
+    await vi.advanceTimersByTimeAsync(60 * 1000);
+
+    expect(vi.mocked(fetch)).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
+});
