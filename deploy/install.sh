@@ -11,6 +11,7 @@ echo "=== Pi Dashboard Install ==="
 echo ">> Installing Node.js 24 and nginx..."
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
 sudo apt-get install -y nodejs nginx
+hash -r
 
 # ── 2. Config check ───────────────────────────────────────────────────────────
 if [ ! -f "$PROJECT_DIR/dashboard.config.json" ]; then
