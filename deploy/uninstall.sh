@@ -16,11 +16,15 @@ sudo systemctl reload nginx
 echo ">> Removing web root..."
 sudo rm -rf "$WEB_ROOT"
 
-# ── Kiosk autostart ───────────────────────────────────────────────────────────
+# ── Autostart ─────────────────────────────────────────────────────────────────
 if [ -f "$AUTOSTART" ]; then
     rm "$AUTOSTART"
-    echo ">> Removed kiosk autostart."
+    echo ">> Removed autostart."
 fi
+
+# ── Desktop icon ──────────────────────────────────────────────────────────────
+rm -f ~/Desktop/pi-dashboard.desktop
+echo ">> Removed desktop icon."
 
 echo ""
 echo "=== Uninstall complete! ==="

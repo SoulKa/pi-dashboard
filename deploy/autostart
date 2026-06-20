@@ -1,1 +1,1 @@
-@chromium --noerrdialogs --disable-infobars --kiosk --app=http://localhost
+@unclutter -idle 0.1 -root

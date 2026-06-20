@@ -1,0 +1,7 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Pi Dashboard
+Exec=chromium --noerrdialogs --disable-infobars --kiosk --app=http://localhost
+Terminal=false
+Categories=Utility;

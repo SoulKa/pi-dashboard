@@ -10,7 +10,7 @@ echo "=== Pi Dashboard Install ==="
 # ── 1. System dependencies ────────────────────────────────────────────────────
 echo ">> Installing Node.js 24 and nginx..."
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-sudo apt-get install -y nodejs nginx
+sudo apt-get install -y nodejs nginx unclutter
 hash -r
 
 # ── 2. Config check ───────────────────────────────────────────────────────────
@@ -43,10 +43,17 @@ sudo nginx -t
 sudo systemctl enable nginx
 sudo systemctl restart nginx
 
-# ── 6. Kiosk autostart ────────────────────────────────────────────────────────
-echo ">> Installing kiosk autostart..."
+# ── 6. Autostart (cursor hiding) ─────────────────────────────────────────────
+echo ">> Installing autostart..."
 mkdir -p ~/.config/lxsession/LXDE-pi
 cp "$DEPLOY_DIR/autostart" ~/.config/lxsession/LXDE-pi/autostart
 
+# ── 7. Desktop icon ───────────────────────────────────────────────────────────
+echo ">> Installing desktop icon..."
+mkdir -p ~/Desktop
+cp "$DEPLOY_DIR/pi-dashboard.desktop" ~/Desktop/pi-dashboard.desktop
+chmod +x ~/Desktop/pi-dashboard.desktop
+gio set ~/Desktop/pi-dashboard.desktop metadata::trusted true 2>/dev/null || true
+
 echo ""
-echo "=== Install complete! Reboot to start the kiosk. ==="
+echo "=== Install complete! Reboot, then double-click the desktop icon to launch. ==="

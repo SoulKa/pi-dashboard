@@ -74,7 +74,7 @@ Output goes to `dist/`. The built files are static and can be served by any web 
 bash deploy/install.sh
 ```
 
-This single script handles everything: installs Node.js and nginx, builds the project, deploys to the web root, configures nginx, and sets up the kiosk autostart. Reboot when it finishes.
+This single script handles everything: installs Node.js, nginx, and unclutter, builds the project, deploys to the web root, configures nginx, installs a desktop icon, and sets up cursor hiding. Reboot when it finishes.
 
 If `dashboard.config.json` is missing the script creates it from the example and stops — fill in your coordinates and station ID, then run it again.
 
@@ -90,7 +90,7 @@ Installs Node.js 24 (via NodeSource) and nginx:
 
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-sudo apt-get install -y nodejs nginx
+sudo apt-get install -y nodejs nginx unclutter
 ```
 
 #### 2. Build
@@ -111,9 +111,13 @@ sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl enable --now nginx
 ```
 
-#### 4. Kiosk browser autostart
+#### 4. Cursor hiding
 
-Copies `deploy/autostart` to `~/.config/lxsession/LXDE-pi/autostart`. On next login Chromium opens in fullscreen kiosk mode pointing at `http://localhost`.
+Copies `deploy/autostart` to `~/.config/lxsession/LXDE-pi/autostart`. This runs `unclutter` at login, which hides the mouse cursor after 0.1 s of inactivity.
+
+#### 5. Desktop icon
+
+Copies `deploy/pi-dashboard.desktop` to `~/Desktop/` and marks it trusted. Double-click it to launch the dashboard in fullscreen kiosk mode. Close with **Alt+F4**.
 
 Requires Raspberry Pi OS with Desktop and auto-login enabled.
 
