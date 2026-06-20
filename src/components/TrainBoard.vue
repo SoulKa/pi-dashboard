@@ -8,7 +8,7 @@ const props = defineProps<{
   error: Error | null;
 }>();
 
-const rows = computed(() => props.departures.slice(0, 8));
+const rows = computed(() => props.departures.slice(0, 3));
 
 function countdownLabel(countdown: number): string {
   return countdown <= 0 ? "jetzt" : `${countdown}'`;

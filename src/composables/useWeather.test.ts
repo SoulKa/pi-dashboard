@@ -26,12 +26,23 @@ function withSetup<T>(composable: () => T): [T, MountReturn] {
 
 const VARIABLE_VALUES = [20.5, 18.0, 3, 15.0, 0.2];
 
+const DAILY_VALUES: number[][] = [
+  [3, 61],      // weather_code:                  today=3,    tomorrow=61
+  [25.0, 18.0], // temperature_2m_max:             today=25,   tomorrow=18
+  [15.0, 10.0], // temperature_2m_min:             today=15,   tomorrow=10
+  [0.0, 8.5],   // precipitation_sum:              today=0,    tomorrow=8.5
+  [5, 80],      // precipitation_probability_max:  today=5,    tomorrow=80
+];
+
 const MOCK_RESPONSE = [
   {
     utcOffsetSeconds: () => 0,
     current: () => ({
       time: () => 1000,
       variables: (i: number) => ({ value: () => VARIABLE_VALUES[i] ?? 0 }),
+    }),
+    daily: () => ({
+      variables: (i: number) => ({ valuesArray: () => DAILY_VALUES[i] }),
     }),
   },
 ];
@@ -76,6 +87,19 @@ describe("useWeather", () => {
     expect(w.windSpeed).toBe(15.0);
     expect(w.precipitation).toBe(0.2);
     expect(w.time).toEqual(new Date(1000 * 1000));
+    wrapper.unmount();
+  });
+
+  it("populates tomorrow forecast from daily data", async () => {
+    const [result, wrapper] = withSetup(() => useWeather());
+    await flushPromises();
+
+    const t = result.weather.value!.tomorrow;
+    expect(t.weatherCode).toBe(61);
+    expect(t.high).toBe(18);
+    expect(t.low).toBe(10);
+    expect(t.precipitationMm).toBe(8.5);
+    expect(t.precipitationProbability).toBe(80);
     wrapper.unmount();
   });
 
