@@ -44,7 +44,7 @@ onUnmounted(() => {
       :error="trainsError"
     />
     <button
-      class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-neutral-800/60 flex items-center justify-center text-neutral-500 text-xl hover:bg-neutral-700 hover:text-white active:scale-95 transition-all"
+      class="fixed top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-neutral-800/60 flex items-center justify-center text-neutral-500 text-xl hover:bg-neutral-700 hover:text-white active:scale-95 transition-all"
       @click="closeApp"
     >✕</button>
   </div>
