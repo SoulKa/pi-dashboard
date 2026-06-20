@@ -110,6 +110,19 @@ describe("useWeather", () => {
     wrapper.unmount();
   });
 
+  it("populates today forecast from daily data", async () => {
+    const [result, wrapper] = withSetup(() => useWeather());
+    await flushPromises();
+
+    const t = result.weather.value!.today;
+    expect(t.weatherCode).toBe(3);
+    expect(t.high).toBe(25);
+    expect(t.low).toBe(15);
+    expect(t.precipitationMm).toBe(0);
+    expect(t.precipitationProbability).toBe(5);
+    wrapper.unmount();
+  });
+
   it("populates tomorrow forecast from daily data", async () => {
     const [result, wrapper] = withSetup(() => useWeather());
     await flushPromises();
@@ -166,6 +179,23 @@ describe("useWeather", () => {
     await flushPromises();
 
     const slots = result.weather.value!.tomorrow.slots;
+    expect(slots).toHaveLength(3);
+    expect(slots[0]).toEqual({ hour: 8,  temperature: 22, weatherCode: 3,  precipitationProbability: 10 });
+    expect(slots[1]).toEqual({ hour: 13, temperature: 28, weatherCode: 80, precipitationProbability: 5  });
+    expect(slots[2]).toEqual({ hour: 19, temperature: 19, weatherCode: 61, precipitationProbability: 60 });
+
+    wrapper.unmount();
+    vi.useRealTimers();
+  });
+
+  it("populates today.slots with 3 hourly entries", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-01-16T10:00:00Z"));
+
+    const [result, wrapper] = withSetup(() => useWeather());
+    await flushPromises();
+
+    const slots = result.weather.value!.today.slots;
     expect(slots).toHaveLength(3);
     expect(slots[0]).toEqual({ hour: 8,  temperature: 22, weatherCode: 3,  precipitationProbability: 10 });
     expect(slots[1]).toEqual({ hour: 13, temperature: 28, weatherCode: 80, precipitationProbability: 5  });

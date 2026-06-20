@@ -26,6 +26,7 @@ export interface WeatherData {
   weatherCode: number;
   windSpeed: number;
   precipitation: number;
+  today: TomorrowForecast;
   tomorrow: TomorrowForecast;
 }
 
@@ -73,6 +74,7 @@ export function useWeather(): {
       const current = location.current()!;
       const daily = location.daily()!;
       const d = (i: number) => daily.variables(i)!.valuesArray()![1]!;
+      const d0 = (i: number) => daily.variables(i)!.valuesArray()![0]!;
 
       const SLOT_HOURS = [8, 13, 19];
       const hourly = location.hourly()!;
@@ -101,6 +103,23 @@ export function useWeather(): {
         }
       }
 
+      const ty2 = nowLocal.getUTCFullYear();
+      const tm2 = nowLocal.getUTCMonth();
+      const td2 = nowLocal.getUTCDate();
+      const todaySlots: HourlySlot[] = [];
+      for (let i = 0; i < hourlyTemps.length; i++) {
+        const hd = new Date((hourlyStart + i * hourlyInterval + utcOffsetSeconds) * 1000);
+        if (hd.getUTCFullYear() === ty2 && hd.getUTCMonth() === tm2 &&
+            hd.getUTCDate() === td2 && SLOT_HOURS.includes(hd.getUTCHours())) {
+          todaySlots.push({
+            hour: hd.getUTCHours(),
+            temperature: Math.round(hourlyTemps[i]!),
+            weatherCode: Math.round(hourlyCodes[i]!),
+            precipitationProbability: Math.round(hourlyPrecip[i]!),
+          });
+        }
+      }
+
       weather.value = {
         time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
         temperature: current.variables(0)!.value(),
@@ -108,6 +127,14 @@ export function useWeather(): {
         weatherCode: current.variables(2)!.value(),
         windSpeed: current.variables(3)!.value(),
         precipitation: current.variables(4)!.value(),
+        today: {
+          weatherCode: Math.round(d0(0)),
+          high: Math.round(d0(1)),
+          low: Math.round(d0(2)),
+          precipitationMm: Math.round(d0(3) * 10) / 10,
+          precipitationProbability: Math.round(d0(4)),
+          slots: todaySlots,
+        },
         tomorrow: {
           weatherCode: Math.round(d(0)),
           high: Math.round(d(1)),

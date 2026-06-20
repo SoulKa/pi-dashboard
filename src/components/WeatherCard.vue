@@ -16,29 +16,17 @@ const timeStr = computed(() =>
 
 const isEvening = computed(() => props.time.getHours() >= 18);
 
-const temperature = computed(() =>
-  props.weather !== null ? Math.round(props.weather.temperature) : null,
-);
-
-const apparentTemperature = computed(() =>
-  props.weather !== null ? Math.round(props.weather.apparentTemperature) : null,
-);
-
-const condition = computed(() =>
-  props.weather !== null
-    ? getWeatherCondition(Math.round(props.weather.weatherCode))
-    : null,
-);
-
-const windSpeed = computed(() =>
-  props.weather !== null ? Math.round(props.weather.windSpeed) : null,
-);
-
-const precipitation = computed(() =>
-  props.weather !== null ? props.weather.precipitation.toFixed(1) : null,
-);
-
+const today = computed(() => props.weather?.today ?? null);
 const tomorrow = computed(() => props.weather?.tomorrow ?? null);
+
+const todayPrecipClass = computed(() => {
+  const p = today.value?.precipitationProbability ?? 0;
+  return {
+    "text-red-400": p > 50,
+    "text-amber-400": p > 20 && p <= 50,
+    "text-neutral-300": p <= 20,
+  };
+});
 
 const tomorrowPrecipClass = computed(() => {
   const p = tomorrow.value?.precipitationProbability ?? 0;
@@ -102,28 +90,39 @@ function formatHour(h: number): string {
       </div>
     </template>
 
-    <template v-else>
-      <div class="flex items-end gap-5">
-        <span class="text-[96px] font-bold leading-none tracking-tight">
-          {{ temperature !== null ? `${temperature}°` : "–°" }}
-        </span>
-        <div class="flex flex-col pb-3 gap-1">
-          <span class="text-4xl leading-none">{{ condition?.icon ?? "🌡️" }}</span>
-          <span class="text-2xl text-neutral-300 leading-none">{{ condition?.label ?? "–" }}</span>
+    <template v-else-if="today !== null">
+      <div class="grid grid-cols-3 gap-4">
+        <div
+          v-for="slot in today.slots"
+          :key="slot.hour"
+          class="flex flex-col items-center gap-3"
+        >
+          <span class="text-xl text-neutral-400 font-mono">{{ formatHour(slot.hour) }}</span>
+          <span class="text-6xl leading-none">{{ getWeatherCondition(slot.weatherCode).icon }}</span>
+          <span class="text-5xl font-bold leading-none">{{ slot.temperature }}°</span>
+          <span class="text-xl text-neutral-300 text-center leading-tight">
+            {{ getWeatherCondition(slot.weatherCode).label }}
+          </span>
+          <span
+            v-if="slot.precipitationProbability > 0"
+            class="text-lg font-medium"
+            :class="{
+              'text-red-400':     slot.precipitationProbability > 50,
+              'text-amber-400':   slot.precipitationProbability > 20 && slot.precipitationProbability <= 50,
+              'text-neutral-400': slot.precipitationProbability <= 20,
+            }"
+          >🌧 {{ slot.precipitationProbability }}%</span>
         </div>
       </div>
 
-      <div class="text-2xl text-neutral-400">
-        Fühlt sich an wie
-        <span class="text-white font-medium">
-          {{ apparentTemperature !== null ? `${apparentTemperature}°` : "–°" }}
+      <div class="flex justify-between items-center text-2xl">
+        <span class="text-neutral-300">↑ {{ today.high }}°&nbsp;&nbsp;↓ {{ today.low }}°</span>
+        <span class="font-semibold" :class="todayPrecipClass">
+          🌧 {{ today.precipitationProbability }}%&nbsp;&nbsp;{{ today.precipitationMm }} mm
         </span>
       </div>
-
-      <div class="flex gap-10 text-2xl text-neutral-300">
-        <span>💨 {{ windSpeed !== null ? `${windSpeed} km/h` : "–" }}</span>
-        <span>🌧 {{ precipitation !== null ? `${precipitation} mm` : "–" }}</span>
-      </div>
     </template>
+
+    <template v-else></template>
   </div>
 </template>

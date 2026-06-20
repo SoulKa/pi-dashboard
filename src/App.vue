@@ -11,6 +11,8 @@ const { departures, loading: trainsLoading, error: trainsError } = useTrains();
 const currentTime = ref(new Date());
 let clockTimer: ReturnType<typeof setInterval> | null = null;
 
+function closeApp() { window.close(); }
+
 onMounted(() => {
   clockTimer = setInterval(() => {
     currentTime.value = new Date();
@@ -41,6 +43,10 @@ onUnmounted(() => {
       :loading="trainsLoading"
       :error="trainsError"
     />
+    <button
+      class="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-neutral-800/60 flex items-center justify-center text-neutral-500 text-xl hover:bg-neutral-700 hover:text-white active:scale-95 transition-all"
+      @click="closeApp"
+    >✕</button>
   </div>
 </template>
 
