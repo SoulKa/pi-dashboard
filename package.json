@@ -13,9 +13,12 @@
   },
   "devDependencies": {
     "@types/node": "^24.12.3",
+    "@unocss/preset-wind4": "^66.7.2",
     "@vitejs/plugin-vue": "^6.0.6",
     "@vue/tsconfig": "^0.9.1",
+    "openmeteo": "^1.2.3",
     "typescript": "~6.0.2",
+    "unocss": "^66.7.2",
     "vite": "^8.0.12",
     "vue-tsc": "^3.2.8"
   }
