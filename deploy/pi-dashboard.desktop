@@ -2,6 +2,7 @@
 Version=1.0
 Type=Application
 Name=Pi Dashboard
+Icon=pi-dashboard
 Exec=chromium --noerrdialogs --disable-infobars --kiosk --app=http://127.0.0.1
 Terminal=false
 Categories=Utility;

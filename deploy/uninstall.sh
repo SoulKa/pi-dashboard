@@ -24,6 +24,7 @@ fi
 
 # ── Desktop icon ──────────────────────────────────────────────────────────────
 rm -f ~/Desktop/pi-dashboard.desktop
+sudo rm -f /usr/share/pixmaps/pi-dashboard.svg
 echo ">> Removed desktop icon."
 
 echo ""

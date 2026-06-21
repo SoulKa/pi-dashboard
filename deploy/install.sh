@@ -10,7 +10,7 @@ echo "=== Pi Dashboard Install ==="
 # ── 1. System dependencies ────────────────────────────────────────────────────
 echo ">> Installing Node.js 24 and nginx..."
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-sudo apt-get install -y nodejs nginx unclutter
+sudo apt-get install -y nodejs nginx unclutter attr
 hash -r
 
 # ── 2. Config check ───────────────────────────────────────────────────────────
@@ -50,10 +50,11 @@ cp "$DEPLOY_DIR/autostart" ~/.config/lxsession/LXDE-pi/autostart
 
 # ── 7. Desktop icon ───────────────────────────────────────────────────────────
 echo ">> Installing desktop icon..."
+sudo cp "$DEPLOY_DIR/icon.svg" /usr/share/pixmaps/pi-dashboard.svg
 mkdir -p ~/Desktop
 cp "$DEPLOY_DIR/pi-dashboard.desktop" ~/Desktop/pi-dashboard.desktop
 chmod +x ~/Desktop/pi-dashboard.desktop
-gio set ~/Desktop/pi-dashboard.desktop metadata::trusted true 2>/dev/null || true
+setfattr -n user.metadata::trusted -v yes ~/Desktop/pi-dashboard.desktop
 
 echo ""
 echo "=== Install complete! Reboot, then double-click the desktop icon to launch. ==="
