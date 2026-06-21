@@ -54,7 +54,6 @@ sudo cp "$DEPLOY_DIR/icon.svg" /usr/share/pixmaps/pi-dashboard.svg
 mkdir -p ~/Desktop
 cp "$DEPLOY_DIR/pi-dashboard.desktop" ~/Desktop/pi-dashboard.desktop
 chmod +x ~/Desktop/pi-dashboard.desktop
-dbus-run-session gio set ~/Desktop/pi-dashboard.desktop metadata::trusted true 2>/dev/null || true
 
 echo ""
 echo "=== Install complete! Reboot, then double-click the desktop icon to launch. ==="
