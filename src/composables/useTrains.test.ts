@@ -130,6 +130,31 @@ describe("useTrains", () => {
     wrapper.unmount();
   });
 
+  it("sorts departures by effective departure time (realtime takes precedence)", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(NOW);
+    const early = {
+      ...MOCK_EVENT,
+      departureTimePlanned: "2026-01-01T10:10:00Z",
+      departureTimeEstimated: "2026-01-01T10:05:00Z", // delayed but effective time is earlier
+    };
+    const late = {
+      ...MOCK_EVENT,
+      departureTimePlanned: "2026-01-01T10:08:00Z",
+      departureTimeEstimated: undefined,
+    };
+    mockFetch({ stopEvents: [late, early] }); // API returns late first
+
+    const [result, wrapper] = withSetup(() => useTrains());
+    await flushPromises();
+
+    expect(result.departures.value[0]!.scheduledTime).toEqual(new Date("2026-01-01T10:10:00Z"));
+    expect(result.departures.value[1]!.scheduledTime).toEqual(new Date("2026-01-01T10:08:00Z"));
+
+    wrapper.unmount();
+    vi.useRealTimers();
+  });
+
   it("sets error on non-OK HTTP response", async () => {
     mockFetch({}, false);
     const [result, wrapper] = withSetup(() => useTrains());

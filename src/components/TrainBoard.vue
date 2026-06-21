@@ -43,47 +43,58 @@ function countdownLabel(dep: Departure): string {
       <span v-else-if="lastUpdatedStr" class="text-lg text-neutral-500">{{ lastUpdatedStr }}</span>
     </div>
 
-    <div
-      v-for="(dep, i) in rows"
-      :key="i"
-      class="flex-1 flex items-center gap-5 px-10 border-b border-neutral-800/50"
-      :class="{ 'bg-neutral-900/40': i % 2 === 1 }"
-    >
-      <span
-        class="w-16 h-9 rounded text-base font-bold flex items-center justify-center shrink-0"
-        :class="{
-          'bg-green-700': /^S\d/.test(dep.line),
-          'bg-blue-700': /^U\d/.test(dep.line),
-          'bg-neutral-700': !/^[SU]\d/.test(dep.line),
-        }"
+    <TransitionGroup tag="div" name="train" class="flex-1 flex flex-col">
+      <div
+        v-for="(dep, i) in rows"
+        :key="`${dep.line}-${dep.scheduledTime.getTime()}`"
+        class="flex-1 flex items-center gap-5 px-10 border-b border-neutral-800/50"
+        :class="{ 'bg-neutral-900/40': i % 2 === 1 }"
       >
-        {{ dep.line }}
-      </span>
+        <span
+          class="w-16 h-9 rounded text-base font-bold flex items-center justify-center shrink-0"
+          :class="{
+            'bg-green-700': /^S\d/.test(dep.line),
+            'bg-blue-700': /^U\d/.test(dep.line),
+            'bg-neutral-700': !/^[SU]\d/.test(dep.line),
+          }"
+        >
+          {{ dep.line }}
+        </span>
 
-      <span class="flex-1 text-xl truncate">{{ dep.direction }}</span>
+        <span class="flex-1 text-xl truncate">{{ dep.direction }}</span>
 
-      <span
-        v-if="dep.delayMinutes > 0"
-        class="text-base font-mono shrink-0"
-        :class="{
-          'text-red-400': dep.delayMinutes >= 5,
-          'text-amber-400': dep.delayMinutes < 5,
-        }"
+        <span
+          v-if="dep.delayMinutes > 0"
+          class="text-base font-mono shrink-0"
+          :class="{
+            'text-red-400': dep.delayMinutes >= 5,
+            'text-amber-400': dep.delayMinutes < 5,
+          }"
+        >
+          +{{ dep.delayMinutes }}'
+        </span>
+
+        <span class="text-3xl font-bold tabular-nums w-20 text-right shrink-0">
+          {{ countdownLabel(dep) }}
+        </span>
+      </div>
+
+      <div
+        v-if="rows.length === 0"
+        key="empty"
+        class="flex-1 flex items-center justify-center text-xl"
+        :class="error ? 'text-red-400' : 'text-neutral-500'"
       >
-        +{{ dep.delayMinutes }}'
-      </span>
-
-      <span class="text-3xl font-bold tabular-nums w-20 text-right shrink-0">
-        {{ countdownLabel(dep) }}
-      </span>
-    </div>
-
-    <div
-      v-if="rows.length === 0"
-      class="flex-1 flex items-center justify-center text-xl"
-      :class="error ? 'text-red-400' : 'text-neutral-500'"
-    >
-      {{ error ? "Abfahrten nicht verfügbar" : loading ? "" : "Keine Abfahrten" }}
-    </div>
+        {{ error ? "Abfahrten nicht verfügbar" : loading ? "" : "Keine Abfahrten" }}
+      </div>
+    </TransitionGroup>
   </div>
 </template>
+
+<style scoped>
+.train-move         { transition: transform 0.35s ease; }
+.train-enter-active { transition: opacity 0.25s ease, transform 0.25s ease; }
+.train-leave-active { transition: opacity 0.25s ease; }
+.train-enter-from   { opacity: 0; transform: translateY(-8px); }
+.train-leave-to     { opacity: 0; }
+</style>

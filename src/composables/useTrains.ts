@@ -74,7 +74,10 @@ export function useTrains(): {
           delayMinutes,
           platform: e.location.properties?.platformName ?? null,
         };
-      });
+      }).sort((a, b) =>
+        (a.realtimeTime ?? a.scheduledTime).getTime() -
+        (b.realtimeTime ?? b.scheduledTime).getTime()
+      );
     } catch (e) {
       error.value = e instanceof Error ? e : new Error(String(e));
     } finally {
