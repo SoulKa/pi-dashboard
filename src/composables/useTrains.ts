@@ -58,26 +58,29 @@ export function useTrains(): {
       if (!response.ok) throw new Error(`VVS API error: ${response.status}`);
       const data = (await response.json()) as VvsResponse;
       lastUpdated.value = new Date();
-      departures.value = (data.stopEvents ?? []).map((e) => {
-        const scheduled = new Date(e.departureTimePlanned);
-        const realtime = e.departureTimeEstimated
-          ? new Date(e.departureTimeEstimated)
-          : null;
-        const delayMinutes = realtime
-          ? Math.round((realtime.getTime() - scheduled.getTime()) / 60_000)
-          : 0;
-        return {
-          line: e.transportation.number,
-          direction: e.transportation.destination.name,
-          scheduledTime: scheduled,
-          realtimeTime: realtime,
-          delayMinutes,
-          platform: e.location.properties?.platformName ?? null,
-        };
-      }).sort((a, b) =>
-        (a.realtimeTime ?? a.scheduledTime).getTime() -
-        (b.realtimeTime ?? b.scheduledTime).getTime()
-      );
+      departures.value = (data.stopEvents ?? [])
+        .map((e) => {
+          const scheduled = new Date(e.departureTimePlanned);
+          const realtime = e.departureTimeEstimated
+            ? new Date(e.departureTimeEstimated)
+            : null;
+          const delayMinutes = realtime
+            ? Math.round((realtime.getTime() - scheduled.getTime()) / 60_000)
+            : 0;
+          return {
+            line: e.transportation.number,
+            direction: e.transportation.destination.name,
+            scheduledTime: scheduled,
+            realtimeTime: realtime,
+            delayMinutes,
+            platform: e.location.properties?.platformName ?? null,
+          };
+        })
+        .sort(
+          (a, b) =>
+            (a.realtimeTime ?? a.scheduledTime).getTime() -
+            (b.realtimeTime ?? b.scheduledTime).getTime(),
+        );
     } catch (e) {
       error.value = e instanceof Error ? e : new Error(String(e));
     } finally {

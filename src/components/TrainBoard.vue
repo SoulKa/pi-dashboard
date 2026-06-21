@@ -13,19 +13,31 @@ const rows = computed(() => props.departures.slice(0, 6));
 
 const now = ref(new Date());
 let clockTimer: ReturnType<typeof setInterval> | null = null;
-onMounted(() => { clockTimer = setInterval(() => { now.value = new Date(); }, 1000); });
-onUnmounted(() => { if (clockTimer !== null) { clearInterval(clockTimer); clockTimer = null; } });
+onMounted(() => {
+  clockTimer = setInterval(() => {
+    now.value = new Date();
+  }, 1000);
+});
+onUnmounted(() => {
+  if (clockTimer !== null) {
+    clearInterval(clockTimer);
+    clockTimer = null;
+  }
+});
 
 const lastUpdatedStr = computed(() => {
   if (!props.lastUpdated) return null;
-  const secs = Math.round((now.value.getTime() - props.lastUpdated.getTime()) / 1000);
+  const secs = Math.round(
+    (now.value.getTime() - props.lastUpdated.getTime()) / 1000,
+  );
   if (secs < 10) return "gerade eben";
   if (secs < 60) return `vor ${secs}s`;
   return `vor ${Math.round(secs / 60)} min`;
 });
 
 function countdownLabel(dep: Departure): string {
-  const ms = (dep.realtimeTime ?? dep.scheduledTime).getTime() - now.value.getTime();
+  const ms =
+    (dep.realtimeTime ?? dep.scheduledTime).getTime() - now.value.getTime();
   if (ms <= 0) return "jetzt";
   if (ms < 60_000) return `${Math.ceil(ms / 1000)}s`;
   return `${Math.round(ms / 60_000)}'`;
@@ -33,14 +45,23 @@ function countdownLabel(dep: Departure): string {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-0 border-t border-neutral-200 dark:border-neutral-800">
+  <div
+    class="flex flex-col min-h-0 border-t border-neutral-200 dark:border-neutral-800"
+  >
     <div
       class="flex items-center justify-between px-10 py-5 border-b border-neutral-200 dark:border-neutral-800 shrink-0"
     >
-      <span class="text-2xl font-semibold text-neutral-600 dark:text-neutral-300">Abfahrten</span>
+      <span
+        class="text-2xl font-semibold text-neutral-600 dark:text-neutral-300"
+        >Abfahrten</span
+      >
       <span v-if="loading" class="text-lg text-neutral-500">Lädt…</span>
-      <span v-else-if="error && rows.length > 0" class="text-lg text-red-400">Fehler</span>
-      <span v-else-if="lastUpdatedStr" class="text-lg text-neutral-500">{{ lastUpdatedStr }}</span>
+      <span v-else-if="error && rows.length > 0" class="text-lg text-red-400"
+        >Fehler</span
+      >
+      <span v-else-if="lastUpdatedStr" class="text-lg text-neutral-500">{{
+        lastUpdatedStr
+      }}</span>
     </div>
 
     <TransitionGroup tag="div" name="train" class="flex-1 flex flex-col">
@@ -85,16 +106,31 @@ function countdownLabel(dep: Departure): string {
         class="flex-1 flex items-center justify-center text-xl"
         :class="error ? 'text-red-400' : 'text-neutral-500'"
       >
-        {{ error ? "Abfahrten nicht verfügbar" : loading ? "" : "Keine Abfahrten" }}
+        {{
+          error ? "Abfahrten nicht verfügbar" : loading ? "" : "Keine Abfahrten"
+        }}
       </div>
     </TransitionGroup>
   </div>
 </template>
 
 <style scoped>
-.train-move         { transition: transform 0.35s ease; }
-.train-enter-active { transition: opacity 0.25s ease, transform 0.25s ease; }
-.train-leave-active { transition: opacity 0.25s ease; }
-.train-enter-from   { opacity: 0; transform: translateY(-8px); }
-.train-leave-to     { opacity: 0; }
+.train-move {
+  transition: transform 0.35s ease;
+}
+.train-enter-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+.train-leave-active {
+  transition: opacity 0.25s ease;
+}
+.train-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+.train-leave-to {
+  opacity: 0;
+}
 </style>

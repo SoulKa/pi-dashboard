@@ -7,12 +7,19 @@ import { useTrains } from "@/composables/useTrains";
 import { useTheme } from "@/composables/useTheme";
 
 const { weather, loading: weatherLoading, error: weatherError } = useWeather();
-const { departures, loading: trainsLoading, error: trainsError, lastUpdated: trainsLastUpdated } = useTrains();
+const {
+  departures,
+  loading: trainsLoading,
+  error: trainsError,
+  lastUpdated: trainsLastUpdated,
+} = useTrains();
 
 const currentTime = ref(new Date());
 let clockTimer: ReturnType<typeof setInterval> | null = null;
 
-function closeApp() { window.close(); }
+function closeApp() {
+  window.close();
+}
 
 const { themeSymbol, cycleTheme } = useTheme(weather, currentTime);
 
@@ -50,11 +57,15 @@ onUnmounted(() => {
     <button
       class="fixed top-6 left-6 w-12 h-12 rounded-full bg-neutral-200/60 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-400 dark:text-neutral-500 text-xl hover:bg-neutral-300 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-white active:scale-95 transition-all"
       @click="cycleTheme"
-    >{{ themeSymbol }}</button>
+    >
+      {{ themeSymbol }}
+    </button>
     <button
       class="fixed top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-neutral-200/60 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-400 dark:text-neutral-500 text-xl hover:bg-neutral-300 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-white active:scale-95 transition-all"
       @click="closeApp"
-    >✕</button>
+    >
+      ✕
+    </button>
   </div>
 </template>
 

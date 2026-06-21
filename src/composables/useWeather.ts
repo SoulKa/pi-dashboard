@@ -69,7 +69,11 @@ export function useWeather(): {
             "sunrise",
             "sunset",
           ],
-          hourly: ["temperature_2m", "weather_code", "precipitation_probability"],
+          hourly: [
+            "temperature_2m",
+            "weather_code",
+            "precipitation_probability",
+          ],
           timezone: "auto",
         },
       );
@@ -79,7 +83,8 @@ export function useWeather(): {
       const daily = location.daily()!;
       const d = (i: number) => daily.variables(i)!.valuesArray()![1]!;
       const d0 = (i: number) => daily.variables(i)!.valuesArray()![0]!;
-      const dts = (i: number, day: number) => Number(daily.variables(i)!.valuesInt64(day)!);
+      const dts = (i: number, day: number) =>
+        Number(daily.variables(i)!.valuesInt64(day)!);
 
       const SLOT_HOURS = [8, 13, 19];
       const hourly = location.hourly()!;
@@ -87,8 +92,11 @@ export function useWeather(): {
       const hourlyTemps = hourly.variables(0)!.valuesArray()!;
       const hourlyCodes = hourly.variables(1)!.valuesArray()!;
       const hourlyPrecip = hourly.variables(2)!.valuesArray()!;
-      const hourlyInterval = (Number(hourly.timeEnd()) - hourlyStart) / hourlyTemps.length;
-      const nowLocal = new Date((Math.floor(Date.now() / 1000) + utcOffsetSeconds) * 1000);
+      const hourlyInterval =
+        (Number(hourly.timeEnd()) - hourlyStart) / hourlyTemps.length;
+      const nowLocal = new Date(
+        (Math.floor(Date.now() / 1000) + utcOffsetSeconds) * 1000,
+      );
       const tomorrowLocal = new Date(nowLocal);
       tomorrowLocal.setUTCDate(tomorrowLocal.getUTCDate() + 1);
       const ty = tomorrowLocal.getUTCFullYear();
@@ -96,9 +104,15 @@ export function useWeather(): {
       const td = tomorrowLocal.getUTCDate();
       const slots: HourlySlot[] = [];
       for (let i = 0; i < hourlyTemps.length; i++) {
-        const hd = new Date((hourlyStart + i * hourlyInterval + utcOffsetSeconds) * 1000);
-        if (hd.getUTCFullYear() === ty && hd.getUTCMonth() === tm &&
-            hd.getUTCDate() === td && SLOT_HOURS.includes(hd.getUTCHours())) {
+        const hd = new Date(
+          (hourlyStart + i * hourlyInterval + utcOffsetSeconds) * 1000,
+        );
+        if (
+          hd.getUTCFullYear() === ty &&
+          hd.getUTCMonth() === tm &&
+          hd.getUTCDate() === td &&
+          SLOT_HOURS.includes(hd.getUTCHours())
+        ) {
           slots.push({
             hour: hd.getUTCHours(),
             temperature: Math.round(hourlyTemps[i]!),
@@ -113,9 +127,15 @@ export function useWeather(): {
       const td2 = nowLocal.getUTCDate();
       const todaySlots: HourlySlot[] = [];
       for (let i = 0; i < hourlyTemps.length; i++) {
-        const hd = new Date((hourlyStart + i * hourlyInterval + utcOffsetSeconds) * 1000);
-        if (hd.getUTCFullYear() === ty2 && hd.getUTCMonth() === tm2 &&
-            hd.getUTCDate() === td2 && SLOT_HOURS.includes(hd.getUTCHours())) {
+        const hd = new Date(
+          (hourlyStart + i * hourlyInterval + utcOffsetSeconds) * 1000,
+        );
+        if (
+          hd.getUTCFullYear() === ty2 &&
+          hd.getUTCMonth() === tm2 &&
+          hd.getUTCDate() === td2 &&
+          SLOT_HOURS.includes(hd.getUTCHours())
+        ) {
           todaySlots.push({
             hour: hd.getUTCHours(),
             temperature: Math.round(hourlyTemps[i]!),

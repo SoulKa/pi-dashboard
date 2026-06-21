@@ -4,7 +4,10 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { useTrains } from "./useTrains";
 
 vi.mock("@/config", () => ({
-  default: { location: { latitude: 1.0, longitude: 2.0 }, station: { id: 123 } },
+  default: {
+    location: { latitude: 1.0, longitude: 2.0 },
+    station: { id: 123 },
+  },
 }));
 
 type MountReturn = ReturnType<typeof mount>;
@@ -148,8 +151,12 @@ describe("useTrains", () => {
     const [result, wrapper] = withSetup(() => useTrains());
     await flushPromises();
 
-    expect(result.departures.value[0]!.scheduledTime).toEqual(new Date("2026-01-01T10:10:00Z"));
-    expect(result.departures.value[1]!.scheduledTime).toEqual(new Date("2026-01-01T10:08:00Z"));
+    expect(result.departures.value[0]!.scheduledTime).toEqual(
+      new Date("2026-01-01T10:10:00Z"),
+    );
+    expect(result.departures.value[1]!.scheduledTime).toEqual(
+      new Date("2026-01-01T10:08:00Z"),
+    );
 
     wrapper.unmount();
     vi.useRealTimers();

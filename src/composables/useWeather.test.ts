@@ -6,7 +6,10 @@ import { useWeather } from "./useWeather";
 
 vi.mock("openmeteo", () => ({ fetchWeatherApi: vi.fn() }));
 vi.mock("@/config", () => ({
-  default: { location: { latitude: 1.0, longitude: 2.0 }, station: { id: 123 } },
+  default: {
+    location: { latitude: 1.0, longitude: 2.0 },
+    station: { id: 123 },
+  },
 }));
 
 type MountReturn = ReturnType<typeof mount>;
@@ -27,11 +30,11 @@ function withSetup<T>(composable: () => T): [T, MountReturn] {
 const VARIABLE_VALUES = [20.5, 18.0, 3, 15.0, 0.2];
 
 const DAILY_VALUES: number[][] = [
-  [3, 61],             // weather_code:                  today=3,    tomorrow=61
-  [25.0, 18.0],        // temperature_2m_max:             today=25,   tomorrow=18
-  [15.0, 10.0],        // temperature_2m_min:             today=15,   tomorrow=10
-  [0.0, 8.5],          // precipitation_sum:              today=0,    tomorrow=8.5
-  [5, 80],             // precipitation_probability_max:  today=5,    tomorrow=80
+  [3, 61], // weather_code:                  today=3,    tomorrow=61
+  [25.0, 18.0], // temperature_2m_max:             today=25,   tomorrow=18
+  [15.0, 10.0], // temperature_2m_min:             today=15,   tomorrow=10
+  [0.0, 8.5], // precipitation_sum:              today=0,    tomorrow=8.5
+  [5, 80], // precipitation_probability_max:  today=5,    tomorrow=80
   [1705384800, 1705384800], // sunrise: 2024-01-16T06:00:00Z
   [1705427400, 1705427400], // sunset:  2024-01-16T17:30:00Z
 ];
@@ -42,9 +45,13 @@ const DAILY_VALUES: number[][] = [
 // 2024-01-15T20:00:00Z in the slots test to make "tomorrow" = 2024-01-16.
 const HOURLY_START_S = 1705363200; // 2024-01-16T00:00:00Z
 const HOURLY_TEMPS = new Float32Array(24);
-HOURLY_TEMPS[8] = 22; HOURLY_TEMPS[13] = 28; HOURLY_TEMPS[19] = 19;
+HOURLY_TEMPS[8] = 22;
+HOURLY_TEMPS[13] = 28;
+HOURLY_TEMPS[19] = 19;
 const HOURLY_CODES = new Float32Array(24);
-HOURLY_CODES[8] = 3; HOURLY_CODES[13] = 80; HOURLY_CODES[19] = 61;
+HOURLY_CODES[8] = 3;
+HOURLY_CODES[13] = 80;
+HOURLY_CODES[19] = 61;
 
 const MOCK_RESPONSE = [
   {
@@ -56,7 +63,8 @@ const MOCK_RESPONSE = [
     daily: () => ({
       variables: (i: number) => ({
         valuesArray: () => (i < 5 ? DAILY_VALUES[i] : null),
-        valuesInt64: (day: number) => (i >= 5 ? BigInt(DAILY_VALUES[i]![day]!) : null),
+        valuesInt64: (day: number) =>
+          i >= 5 ? BigInt(DAILY_VALUES[i]![day]!) : null,
       }),
     }),
     hourly: () => ({
@@ -64,9 +72,17 @@ const MOCK_RESPONSE = [
       timeEnd: () => BigInt(HOURLY_START_S + 24 * 3600),
       variables: (i: number) => ({
         valuesArray: () =>
-          i === 0 ? HOURLY_TEMPS
-          : i === 1 ? HOURLY_CODES
-          : (() => { const a = new Float32Array(24); a[8] = 10; a[13] = 5; a[19] = 60; return a; })(),
+          i === 0
+            ? HOURLY_TEMPS
+            : i === 1
+              ? HOURLY_CODES
+              : (() => {
+                  const a = new Float32Array(24);
+                  a[8] = 10;
+                  a[13] = 5;
+                  a[19] = 60;
+                  return a;
+                })(),
       }),
     }),
   },
@@ -189,9 +205,24 @@ describe("useWeather", () => {
 
     const slots = result.weather.value!.tomorrow.slots;
     expect(slots).toHaveLength(3);
-    expect(slots[0]).toEqual({ hour: 8,  temperature: 22, weatherCode: 3,  precipitationProbability: 10 });
-    expect(slots[1]).toEqual({ hour: 13, temperature: 28, weatherCode: 80, precipitationProbability: 5  });
-    expect(slots[2]).toEqual({ hour: 19, temperature: 19, weatherCode: 61, precipitationProbability: 60 });
+    expect(slots[0]).toEqual({
+      hour: 8,
+      temperature: 22,
+      weatherCode: 3,
+      precipitationProbability: 10,
+    });
+    expect(slots[1]).toEqual({
+      hour: 13,
+      temperature: 28,
+      weatherCode: 80,
+      precipitationProbability: 5,
+    });
+    expect(slots[2]).toEqual({
+      hour: 19,
+      temperature: 19,
+      weatherCode: 61,
+      precipitationProbability: 60,
+    });
 
     wrapper.unmount();
     vi.useRealTimers();
@@ -206,9 +237,24 @@ describe("useWeather", () => {
 
     const slots = result.weather.value!.today.slots;
     expect(slots).toHaveLength(3);
-    expect(slots[0]).toEqual({ hour: 8,  temperature: 22, weatherCode: 3,  precipitationProbability: 10 });
-    expect(slots[1]).toEqual({ hour: 13, temperature: 28, weatherCode: 80, precipitationProbability: 5  });
-    expect(slots[2]).toEqual({ hour: 19, temperature: 19, weatherCode: 61, precipitationProbability: 60 });
+    expect(slots[0]).toEqual({
+      hour: 8,
+      temperature: 22,
+      weatherCode: 3,
+      precipitationProbability: 10,
+    });
+    expect(slots[1]).toEqual({
+      hour: 13,
+      temperature: 28,
+      weatherCode: 80,
+      precipitationProbability: 5,
+    });
+    expect(slots[2]).toEqual({
+      hour: 19,
+      temperature: 19,
+      weatherCode: 61,
+      precipitationProbability: 60,
+    });
 
     wrapper.unmount();
     vi.useRealTimers();
