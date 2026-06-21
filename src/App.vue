@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watchEffect } from "vue";
 import WeatherCard from "@/components/WeatherCard.vue";
 import TrainBoard from "@/components/TrainBoard.vue";
 import { useWeather } from "@/composables/useWeather";
@@ -12,6 +12,13 @@ const currentTime = ref(new Date());
 let clockTimer: ReturnType<typeof setInterval> | null = null;
 
 function closeApp() { window.close(); }
+
+watchEffect(() => {
+  const w = weather.value;
+  const t = currentTime.value.getTime();
+  const isDay = w !== null && t >= w.sunrise.getTime() && t < w.sunset.getTime();
+  document.documentElement.classList.toggle("dark", !isDay);
+});
 
 onMounted(() => {
   clockTimer = setInterval(() => {
@@ -29,7 +36,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="w-screen h-screen overflow-hidden grid bg-neutral-950 text-white"
+    class="w-screen h-screen overflow-hidden grid bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white transition-colors duration-700"
     style="grid-template-rows: auto 1fr"
   >
     <WeatherCard
@@ -45,7 +52,7 @@ onUnmounted(() => {
       :last-updated="trainsLastUpdated"
     />
     <button
-      class="fixed top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-neutral-800/60 flex items-center justify-center text-neutral-500 text-xl hover:bg-neutral-700 hover:text-white active:scale-95 transition-all"
+      class="fixed top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-neutral-200/60 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-400 dark:text-neutral-500 text-xl hover:bg-neutral-300 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-white active:scale-95 transition-all"
       @click="closeApp"
     >✕</button>
   </div>
@@ -59,6 +66,12 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: white;
+  transition: background 0.7s ease;
+}
+
+html.dark,
+html.dark body {
   background: #0a0a0a;
 }
 

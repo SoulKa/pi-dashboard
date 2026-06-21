@@ -33,11 +33,11 @@ function countdownLabel(dep: Departure): string {
 </script>
 
 <template>
-  <div class="flex flex-col min-h-0 border-t border-neutral-800">
+  <div class="flex flex-col min-h-0 border-t border-neutral-200 dark:border-neutral-800">
     <div
-      class="flex items-center justify-between px-10 py-5 border-b border-neutral-800 shrink-0"
+      class="flex items-center justify-between px-10 py-5 border-b border-neutral-200 dark:border-neutral-800 shrink-0"
     >
-      <span class="text-2xl font-semibold text-neutral-300">Abfahrten</span>
+      <span class="text-2xl font-semibold text-neutral-600 dark:text-neutral-300">Abfahrten</span>
       <span v-if="loading" class="text-lg text-neutral-500">Lädt…</span>
       <span v-else-if="error && rows.length > 0" class="text-lg text-red-400">Fehler</span>
       <span v-else-if="lastUpdatedStr" class="text-lg text-neutral-500">{{ lastUpdatedStr }}</span>
@@ -47,8 +47,8 @@ function countdownLabel(dep: Departure): string {
       <div
         v-for="(dep, i) in rows"
         :key="`${dep.line}-${dep.scheduledTime.getTime()}`"
-        class="flex-1 flex items-center gap-5 px-10 border-b border-neutral-800/50"
-        :class="{ 'bg-neutral-900/40': i % 2 === 1 }"
+        class="flex-1 flex items-center gap-5 px-10 border-b border-neutral-200/70 dark:border-neutral-800/50"
+        :class="{ 'bg-neutral-100/60 dark:bg-neutral-900/40': i % 2 === 1 }"
       >
         <span
           class="w-16 h-9 rounded text-base font-bold flex items-center justify-center shrink-0"

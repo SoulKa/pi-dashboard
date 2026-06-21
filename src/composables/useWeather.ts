@@ -26,6 +26,8 @@ export interface WeatherData {
   weatherCode: number;
   windSpeed: number;
   precipitation: number;
+  sunrise: Date;
+  sunset: Date;
   today: TomorrowForecast;
   tomorrow: TomorrowForecast;
 }
@@ -64,6 +66,8 @@ export function useWeather(): {
             "temperature_2m_min",
             "precipitation_sum",
             "precipitation_probability_max",
+            "sunrise",
+            "sunset",
           ],
           hourly: ["temperature_2m", "weather_code", "precipitation_probability"],
           timezone: "auto",
@@ -75,6 +79,7 @@ export function useWeather(): {
       const daily = location.daily()!;
       const d = (i: number) => daily.variables(i)!.valuesArray()![1]!;
       const d0 = (i: number) => daily.variables(i)!.valuesArray()![0]!;
+      const dts = (i: number, day: number) => Number(daily.variables(i)!.valuesInt64(day)!);
 
       const SLOT_HOURS = [8, 13, 19];
       const hourly = location.hourly()!;
@@ -127,6 +132,8 @@ export function useWeather(): {
         weatherCode: current.variables(2)!.value(),
         windSpeed: current.variables(3)!.value(),
         precipitation: current.variables(4)!.value(),
+        sunrise: new Date(dts(5, 0) * 1000),
+        sunset: new Date(dts(6, 0) * 1000),
         today: {
           weatherCode: Math.round(d0(0)),
           high: Math.round(d0(1)),

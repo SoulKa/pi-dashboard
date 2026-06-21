@@ -27,11 +27,13 @@ function withSetup<T>(composable: () => T): [T, MountReturn] {
 const VARIABLE_VALUES = [20.5, 18.0, 3, 15.0, 0.2];
 
 const DAILY_VALUES: number[][] = [
-  [3, 61],      // weather_code:                  today=3,    tomorrow=61
-  [25.0, 18.0], // temperature_2m_max:             today=25,   tomorrow=18
-  [15.0, 10.0], // temperature_2m_min:             today=15,   tomorrow=10
-  [0.0, 8.5],   // precipitation_sum:              today=0,    tomorrow=8.5
-  [5, 80],      // precipitation_probability_max:  today=5,    tomorrow=80
+  [3, 61],             // weather_code:                  today=3,    tomorrow=61
+  [25.0, 18.0],        // temperature_2m_max:             today=25,   tomorrow=18
+  [15.0, 10.0],        // temperature_2m_min:             today=15,   tomorrow=10
+  [0.0, 8.5],          // precipitation_sum:              today=0,    tomorrow=8.5
+  [5, 80],             // precipitation_probability_max:  today=5,    tomorrow=80
+  [1705384800, 1705384800], // sunrise: 2024-01-16T06:00:00Z
+  [1705427400, 1705427400], // sunset:  2024-01-16T17:30:00Z
 ];
 
 // Hourly data anchored at 2024-01-16T00:00:00Z (24 entries, 1-hour interval).
@@ -52,7 +54,10 @@ const MOCK_RESPONSE = [
       variables: (i: number) => ({ value: () => VARIABLE_VALUES[i] ?? 0 }),
     }),
     daily: () => ({
-      variables: (i: number) => ({ valuesArray: () => DAILY_VALUES[i] }),
+      variables: (i: number) => ({
+        valuesArray: () => (i < 5 ? DAILY_VALUES[i] : null),
+        valuesInt64: (day: number) => (i >= 5 ? BigInt(DAILY_VALUES[i]![day]!) : null),
+      }),
     }),
     hourly: () => ({
       time: () => BigInt(HOURLY_START_S),
@@ -107,6 +112,10 @@ describe("useWeather", () => {
     expect(w.windSpeed).toBe(15.0);
     expect(w.precipitation).toBe(0.2);
     expect(w.time).toEqual(new Date(1000 * 1000));
+    expect(w.sunrise).toBeInstanceOf(Date);
+    expect(w.sunset).toBeInstanceOf(Date);
+    expect(w.sunrise.getTime()).toBe(1705384800 * 1000);
+    expect(w.sunset.getTime()).toBe(1705427400 * 1000);
     wrapper.unmount();
   });
 

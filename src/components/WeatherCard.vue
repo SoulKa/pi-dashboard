@@ -24,7 +24,7 @@ const todayPrecipClass = computed(() => {
   return {
     "text-red-400": p > 50,
     "text-amber-400": p > 20 && p <= 50,
-    "text-neutral-300": p <= 20,
+    "text-neutral-600 dark:text-neutral-300": p <= 20,
   };
 });
 
@@ -33,7 +33,7 @@ const tomorrowPrecipClass = computed(() => {
   return {
     "text-red-400": p > 50,
     "text-amber-400": p > 20 && p <= 50,
-    "text-neutral-300": p <= 20,
+    "text-neutral-600 dark:text-neutral-300": p <= 20,
   };
 });
 
@@ -48,7 +48,7 @@ function formatHour(h: number): string {
       <span class="text-lg text-neutral-500 font-medium tracking-widest uppercase">
         {{ isEvening ? "Morgen" : "Aktuell" }}
       </span>
-      <span class="text-5xl font-mono font-light text-neutral-300 tabular-nums">
+      <span class="text-5xl font-mono font-light text-neutral-600 dark:text-neutral-300 tabular-nums">
         {{ timeStr }}
       </span>
     </div>
@@ -64,10 +64,10 @@ function formatHour(h: number): string {
           :key="slot.hour"
           class="flex flex-col items-center gap-3"
         >
-          <span class="text-xl text-neutral-400 font-mono">{{ formatHour(slot.hour) }}</span>
+          <span class="text-xl text-neutral-500 dark:text-neutral-400 font-mono">{{ formatHour(slot.hour) }}</span>
           <span class="text-6xl leading-none">{{ getWeatherCondition(slot.weatherCode).icon }}</span>
           <span class="text-5xl font-bold leading-none">{{ slot.temperature }}°</span>
-          <span class="text-xl text-neutral-300 text-center leading-tight">
+          <span class="text-xl text-neutral-600 dark:text-neutral-300 text-center leading-tight">
             {{ getWeatherCondition(slot.weatherCode).label }}
           </span>
           <span
@@ -83,7 +83,7 @@ function formatHour(h: number): string {
       </div>
 
       <div class="flex justify-between items-center text-2xl">
-        <span class="text-neutral-300">↑ {{ tomorrow.high }}°&nbsp;&nbsp;↓ {{ tomorrow.low }}°</span>
+        <span class="text-neutral-600 dark:text-neutral-300">↑ {{ tomorrow.high }}°&nbsp;&nbsp;↓ {{ tomorrow.low }}°</span>
         <span class="font-semibold" :class="tomorrowPrecipClass">
           🌧 {{ tomorrow.precipitationProbability }}%&nbsp;&nbsp;{{ tomorrow.precipitationMm }} mm
         </span>
@@ -97,10 +97,10 @@ function formatHour(h: number): string {
           :key="slot.hour"
           class="flex flex-col items-center gap-3"
         >
-          <span class="text-xl text-neutral-400 font-mono">{{ formatHour(slot.hour) }}</span>
+          <span class="text-xl text-neutral-500 dark:text-neutral-400 font-mono">{{ formatHour(slot.hour) }}</span>
           <span class="text-6xl leading-none">{{ getWeatherCondition(slot.weatherCode).icon }}</span>
           <span class="text-5xl font-bold leading-none">{{ slot.temperature }}°</span>
-          <span class="text-xl text-neutral-300 text-center leading-tight">
+          <span class="text-xl text-neutral-600 dark:text-neutral-300 text-center leading-tight">
             {{ getWeatherCondition(slot.weatherCode).label }}
           </span>
           <span
@@ -116,7 +116,7 @@ function formatHour(h: number): string {
       </div>
 
       <div class="flex justify-between items-center text-2xl">
-        <span class="text-neutral-300">↑ {{ today.high }}°&nbsp;&nbsp;↓ {{ today.low }}°</span>
+        <span class="text-neutral-600 dark:text-neutral-300">↑ {{ today.high }}°&nbsp;&nbsp;↓ {{ today.low }}°</span>
         <span class="font-semibold" :class="todayPrecipClass">
           🌧 {{ today.precipitationProbability }}%&nbsp;&nbsp;{{ today.precipitationMm }} mm
         </span>
