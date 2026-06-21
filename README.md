@@ -29,10 +29,10 @@ cp dashboard.config.example.json dashboard.config.json
 }
 ```
 
-| Field | Description |
-| --- | --- |
-| `location.latitude` / `location.longitude` | Coordinates for weather data (decimal degrees) |
-| `station.id` | VVS stop ID — find yours at [vvs.de](https://www.vvs.de) or via the EFA API |
+| Field                                      | Description                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------------- |
+| `location.latitude` / `location.longitude` | Coordinates for weather data (decimal degrees)                              |
+| `station.id`                               | VVS stop ID — find yours at [vvs.de](https://www.vvs.de) or via the EFA API |
 
 The config is read at **build time** and bundled into the output. Changing it requires a rebuild.
 
@@ -45,7 +45,7 @@ npm install
 npm run dev
 ```
 
-The dev server starts at `http://localhost:5173` and proxies VVS API requests to avoid CORS issues.
+The dev server starts at `http://127.0.0.1:5173` and proxies VVS API requests to avoid CORS issues.
 
 ```bash
 npm run test        # run tests once

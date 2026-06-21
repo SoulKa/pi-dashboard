@@ -2,6 +2,6 @@
 Version=1.0
 Type=Application
 Name=Pi Dashboard
-Exec=chromium --noerrdialogs --disable-infobars --kiosk --app=http://localhost
+Exec=chromium --noerrdialogs --disable-infobars --kiosk --app=http://127.0.0.1
 Terminal=false
 Categories=Utility;
