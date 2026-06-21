@@ -5,6 +5,7 @@ import type { WeatherData } from "@/composables/useWeather";
 export type ThemePreference = "auto" | "light" | "dark";
 
 const CYCLE: ThemePreference[] = ["auto", "light", "dark"];
+const OFFSET_MS = 60 * 60 * 1000;
 const SYMBOLS: Record<ThemePreference, string> = {
   auto: "◐",
   light: "☀",
@@ -30,7 +31,9 @@ export function useTheme(
     const w = weather.value;
     const t = currentTime.value.getTime();
     const isDay =
-      w !== null && t >= w.sunrise.getTime() && t < w.sunset.getTime();
+      w !== null &&
+      t >= w.sunrise.getTime() + OFFSET_MS &&
+      t < w.sunset.getTime() - OFFSET_MS;
     document.documentElement.classList.toggle("dark", !isDay);
   });
 
