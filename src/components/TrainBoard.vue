@@ -51,11 +51,11 @@ function countdownLabel(dep: Departure): string {
         :class="{ 'bg-neutral-100/60 dark:bg-neutral-900/40': i % 2 === 1 }"
       >
         <span
-          class="w-16 h-9 rounded text-base font-bold flex items-center justify-center shrink-0"
+          class="w-16 h-9 rounded text-base font-bold text-white flex items-center justify-center shrink-0"
           :class="{
-            'bg-green-700': /^S\d/.test(dep.line),
-            'bg-blue-700': /^U\d/.test(dep.line),
-            'bg-neutral-700': !/^[SU]\d/.test(dep.line),
+            'bg-green-600': /^S\d/.test(dep.line),
+            'bg-blue-600': /^U\d/.test(dep.line),
+            'bg-slate-500': !/^[SU]\d/.test(dep.line),
           }"
         >
           {{ dep.line }}
