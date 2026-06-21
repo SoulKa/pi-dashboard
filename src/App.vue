@@ -6,7 +6,7 @@ import { useWeather } from "@/composables/useWeather";
 import { useTrains } from "@/composables/useTrains";
 
 const { weather, loading: weatherLoading, error: weatherError } = useWeather();
-const { departures, loading: trainsLoading, error: trainsError } = useTrains();
+const { departures, loading: trainsLoading, error: trainsError, lastUpdated: trainsLastUpdated } = useTrains();
 
 const currentTime = ref(new Date());
 let clockTimer: ReturnType<typeof setInterval> | null = null;
@@ -42,6 +42,7 @@ onUnmounted(() => {
       :departures="departures"
       :loading="trainsLoading"
       :error="trainsError"
+      :last-updated="trainsLastUpdated"
     />
     <button
       class="fixed top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-neutral-800/60 flex items-center justify-center text-neutral-500 text-xl hover:bg-neutral-700 hover:text-white active:scale-95 transition-all"

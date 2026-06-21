@@ -33,11 +33,13 @@ export function useTrains(): {
   departures: Ref<Departure[]>;
   loading: Ref<boolean>;
   error: Ref<Error | null>;
+  lastUpdated: Ref<Date | null>;
   refresh: () => Promise<void>;
 } {
   const departures = ref<Departure[]>([]);
   const loading = ref(false);
   const error = ref<Error | null>(null);
+  const lastUpdated = ref<Date | null>(null);
 
   async function refresh(): Promise<void> {
     loading.value = true;
@@ -55,6 +57,7 @@ export function useTrains(): {
       const response = await fetch(`/api/vvs/XML_DM_REQUEST?${params}`);
       if (!response.ok) throw new Error(`VVS API error: ${response.status}`);
       const data = (await response.json()) as VvsResponse;
+      lastUpdated.value = new Date();
       departures.value = (data.stopEvents ?? []).map((e) => {
         const scheduled = new Date(e.departureTimePlanned);
         const realtime = e.departureTimeEstimated
@@ -93,5 +96,5 @@ export function useTrains(): {
     }
   });
 
-  return { departures, loading, error, refresh };
+  return { departures, loading, error, lastUpdated, refresh };
 }

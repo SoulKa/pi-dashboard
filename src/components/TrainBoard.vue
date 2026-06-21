@@ -6,6 +6,7 @@ const props = defineProps<{
   departures: Departure[];
   loading: boolean;
   error: Error | null;
+  lastUpdated: Date | null;
 }>();
 
 const rows = computed(() => props.departures.slice(0, 6));
@@ -14,6 +15,14 @@ const now = ref(new Date());
 let clockTimer: ReturnType<typeof setInterval> | null = null;
 onMounted(() => { clockTimer = setInterval(() => { now.value = new Date(); }, 1000); });
 onUnmounted(() => { if (clockTimer !== null) { clearInterval(clockTimer); clockTimer = null; } });
+
+const lastUpdatedStr = computed(() => {
+  if (!props.lastUpdated) return null;
+  const secs = Math.round((now.value.getTime() - props.lastUpdated.getTime()) / 1000);
+  if (secs < 10) return "gerade eben";
+  if (secs < 60) return `vor ${secs}s`;
+  return `vor ${Math.round(secs / 60)} min`;
+});
 
 function countdownLabel(dep: Departure): string {
   const ms = (dep.realtimeTime ?? dep.scheduledTime).getTime() - now.value.getTime();
@@ -31,6 +40,7 @@ function countdownLabel(dep: Departure): string {
       <span class="text-2xl font-semibold text-neutral-300">Abfahrten</span>
       <span v-if="loading" class="text-lg text-neutral-500">Lädt…</span>
       <span v-else-if="error && rows.length > 0" class="text-lg text-red-400">Fehler</span>
+      <span v-else-if="lastUpdatedStr" class="text-lg text-neutral-500">{{ lastUpdatedStr }}</span>
     </div>
 
     <div

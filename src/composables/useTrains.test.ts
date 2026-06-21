@@ -89,6 +89,7 @@ describe("useTrains", () => {
     expect(d.realtimeTime).toEqual(new Date("2026-01-01T10:03:00Z"));
     expect(d.delayMinutes).toBe(3);
     expect(d.platform).toBe("3");
+    expect(result.lastUpdated.value).toBeInstanceOf(Date);
 
     wrapper.unmount();
     vi.useRealTimers();
