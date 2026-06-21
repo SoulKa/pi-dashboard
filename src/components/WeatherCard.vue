@@ -46,7 +46,7 @@ function formatHour(h: number): string {
 </script>
 
 <template>
-  <div class="flex flex-col p-10 gap-y-10">
+  <div class="flex flex-col px-10 pt-6 pb-10 gap-y-10">
     <div class="flex items-start justify-end">
       <span
         class="text-5xl font-mono font-light text-neutral-600 dark:text-neutral-300 tabular-nums"
