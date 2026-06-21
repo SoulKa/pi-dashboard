@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import type { Departure } from "@/composables/useTrains";
 
 const props = defineProps<{
@@ -10,8 +10,16 @@ const props = defineProps<{
 
 const rows = computed(() => props.departures.slice(0, 6));
 
-function countdownLabel(countdown: number): string {
-  return countdown <= 0 ? "jetzt" : `${countdown}'`;
+const now = ref(new Date());
+let clockTimer: ReturnType<typeof setInterval> | null = null;
+onMounted(() => { clockTimer = setInterval(() => { now.value = new Date(); }, 1000); });
+onUnmounted(() => { if (clockTimer !== null) { clearInterval(clockTimer); clockTimer = null; } });
+
+function countdownLabel(dep: Departure): string {
+  const ms = (dep.realtimeTime ?? dep.scheduledTime).getTime() - now.value.getTime();
+  if (ms <= 0) return "jetzt";
+  if (ms < 60_000) return `${Math.ceil(ms / 1000)}s`;
+  return `${Math.round(ms / 60_000)}'`;
 }
 </script>
 
@@ -56,7 +64,7 @@ function countdownLabel(countdown: number): string {
       </span>
 
       <span class="text-3xl font-bold tabular-nums w-20 text-right shrink-0">
-        {{ countdownLabel(dep.countdown) }}
+        {{ countdownLabel(dep) }}
       </span>
     </div>
 

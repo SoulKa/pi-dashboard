@@ -9,7 +9,6 @@ export interface Departure {
   realtimeTime: Date | null;
   delayMinutes: number;
   platform: string | null;
-  countdown: number;
 }
 
 interface VvsTransportation {
@@ -64,9 +63,6 @@ export function useTrains(): {
         const delayMinutes = realtime
           ? Math.round((realtime.getTime() - scheduled.getTime()) / 60_000)
           : 0;
-        const countdown = Math.round(
-          ((realtime ?? scheduled).getTime() - Date.now()) / 60_000,
-        );
         return {
           line: e.transportation.number,
           direction: e.transportation.destination.name,
@@ -74,7 +70,6 @@ export function useTrains(): {
           realtimeTime: realtime,
           delayMinutes,
           platform: e.location.properties?.platformName ?? null,
-          countdown,
         };
       });
     } catch (e) {
