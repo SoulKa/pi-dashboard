@@ -44,10 +44,7 @@ function formatHour(h: number): string {
 
 <template>
   <div class="flex flex-col p-10 gap-y-10">
-    <div class="flex items-start justify-between">
-      <span class="text-lg text-neutral-500 font-medium tracking-widest uppercase">
-        {{ isEvening ? "Morgen" : "Aktuell" }}
-      </span>
+    <div class="flex items-start justify-end">
       <span class="text-5xl font-mono font-light text-neutral-600 dark:text-neutral-300 tabular-nums">
         {{ timeStr }}
       </span>
@@ -84,6 +81,7 @@ function formatHour(h: number): string {
 
       <div class="flex justify-between items-center text-2xl">
         <span class="text-neutral-600 dark:text-neutral-300">↑ {{ tomorrow.high }}°&nbsp;&nbsp;↓ {{ tomorrow.low }}°</span>
+        <span class="text-lg text-neutral-500 font-medium tracking-widest uppercase">Morgen</span>
         <span class="font-semibold" :class="tomorrowPrecipClass">
           🌧 {{ tomorrow.precipitationProbability }}%&nbsp;&nbsp;{{ tomorrow.precipitationMm }} mm
         </span>
@@ -117,6 +115,7 @@ function formatHour(h: number): string {
 
       <div class="flex justify-between items-center text-2xl">
         <span class="text-neutral-600 dark:text-neutral-300">↑ {{ today.high }}°&nbsp;&nbsp;↓ {{ today.low }}°</span>
+        <span class="text-lg text-neutral-500 font-medium tracking-widest uppercase">Aktuell</span>
         <span class="font-semibold" :class="todayPrecipClass">
           🌧 {{ today.precipitationProbability }}%&nbsp;&nbsp;{{ today.precipitationMm }} mm
         </span>
