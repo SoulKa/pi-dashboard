@@ -10,7 +10,7 @@ echo "=== Pi Dashboard Install ==="
 # ── 1. System dependencies ────────────────────────────────────────────────────
 echo ">> Installing Node.js 24 and nginx..."
 curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-sudo apt-get install -y nodejs nginx unclutter attr
+sudo apt-get install -y nodejs nginx unclutter
 hash -r
 
 # ── 2. Config check ───────────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ sudo cp "$DEPLOY_DIR/icon.svg" /usr/share/pixmaps/pi-dashboard.svg
 mkdir -p ~/Desktop
 cp "$DEPLOY_DIR/pi-dashboard.desktop" ~/Desktop/pi-dashboard.desktop
 chmod +x ~/Desktop/pi-dashboard.desktop
-setfattr -n user.metadata::trusted -v yes ~/Desktop/pi-dashboard.desktop
+dbus-run-session gio set ~/Desktop/pi-dashboard.desktop metadata::trusted true 2>/dev/null || true
 
 echo ""
 echo "=== Install complete! Reboot, then double-click the desktop icon to launch. ==="
