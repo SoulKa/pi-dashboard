@@ -56,15 +56,15 @@ onUnmounted(() => {
     />
     <button
       class="fixed top-6 left-6 w-12 h-12 rounded-full bg-neutral-200/60 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-400 dark:text-neutral-500 text-xl hover:bg-neutral-300 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-white active:scale-95 transition-all"
-      @click="cycleTheme"
-    >
-      {{ themeSymbol }}
-    </button>
-    <button
-      class="fixed top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-neutral-200/60 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-400 dark:text-neutral-500 text-xl hover:bg-neutral-300 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-white active:scale-95 transition-all"
       @click="closeApp"
     >
       ✕
+    </button>
+    <button
+      class="fixed top-6 right-6 w-12 h-12 rounded-full bg-neutral-200/60 dark:bg-neutral-800/60 flex items-center justify-center text-neutral-400 dark:text-neutral-500 text-xl hover:bg-neutral-300 dark:hover:bg-neutral-700 hover:text-neutral-900 dark:hover:text-white active:scale-95 transition-all"
+      @click="cycleTheme"
+    >
+      {{ themeSymbol }}
     </button>
   </div>
 </template>
